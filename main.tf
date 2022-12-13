@@ -11,7 +11,7 @@ resource "aws_s3_bucket" "example" {
     rule {
       apply_server_side_encryption_by_default {
         kms_master_key_id = aws_kms_key.mykey.arn
-        sse_algorithm     = "aaaaaaa"
+        sse_algorithm     = "aaaaaaa" # oak9: server_side_encryption_configuration.rule.apply_server_side_encryption_by_default.sse_algorithm should be set to any of aws:kms
       }
     }
   }
