@@ -11,7 +11,7 @@ resource "aws_s3_bucket" "example" {
     rule {
       apply_server_side_encryption_by_default {
         kms_master_key_id = aws_kms_key.mykey.arn
-        sse_algorithm     = "aaaaaaa"
+        sse_algorithm     = "aaaaaaa" # oak9: server_side_encryption_configuration.rule.apply_server_side_encryption_by_default.sse_algorithm should be set to any of aws:kms
       }
     }
   }
@@ -45,13 +45,16 @@ resource "aws_s3_access_point" "example" {
 }
 
 resource "aws_elb" "lb" {
+  # oak9: aws_elb.security_groups is not configured
   name               = "test-lb"
   availability_zones = ["us-east-1a"]
 
   listener {
     instance_port     = 8000
     instance_protocol = "http"
+    # oak9: aws_elb.listener.instance_protocol is not configured
     lb_port           = 80
     lb_protocol       = "http"
+  # oak9: aws_elb.listener.lb_protocol is not configured
   }
 }
