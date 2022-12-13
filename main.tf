@@ -45,6 +45,7 @@ resource "aws_s3_access_point" "example" {
 }
 
 resource "aws_elb" "lb" {
+  # oak9: aws_elb.security_groups is not configured
   name               = "test-lb"
   availability_zones = ["us-east-1a"]
 
