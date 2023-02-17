@@ -53,5 +53,6 @@ resource "aws_elb" "lb" {
     instance_protocol = "http"
     lb_port           = 80
     lb_protocol       = "http"
+  # oak9: aws_elb.listener.lb_protocol is not configured
   }
 }
