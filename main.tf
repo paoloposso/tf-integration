@@ -1,57 +1,41 @@
-resource "aws_s3_bucket" "example" {
-  bucket = "my-tf-test-bucket"
-  acl = "tsttt"
-
-  tags = {
-    Name        = "My bucket"
-    Environment = "Dev"
-  }
-
-  server_side_encryption_configuration {
-    rule {
-      apply_server_side_encryption_by_default {
-        kms_master_key_id = aws_kms_key.mykey.arn
-        sse_algorithm     = "aaaaaaa"
-      }
+resource "aws_dynamodb_table" "table1" {
+    server_side_encryption {
+        kms_key_arn= "arn:{redacted}"
     }
-  }
-}
 
-resource "aws_s3_bucket_server_side_encryption_configuration" "example" {
-  bucket = aws_s3_bucket.example.bucket
+    hash_key = "exampleHashKey"
 
-  rule {
-    apply_server_side_encryption_by_default {
-      kms_master_key_id = aws_kms_key.mykey.arn
-      sse_algorithm     = "bbbbbbb"
+    attribute {
+        name = "GameTitle"
+        type = "S"
     }
-  }
+
+    global_secondary_index {
+        name               = "GameTitleIndex"
+        hash_key           = "GameTitle"
+        range_key          = "TopScore"
+        write_capacity     = 10
+        read_capacity      = 10
+        projection_type    = "INCLUDE"
+        non_key_attributes = ["UserId"]
+    }
+
+    replica {
+        region_name = "us-west-2"
+    }
 }
 
-resource "aws_s3_access_point" "example" {
-  bucket = aws_s3_bucket.example.id
-  name   = "accesspoint-example"
+resource "aws_dynamodb_table_item" "example" {
+  table_name = aws_dynamodb_table.table1.name
+  hash_key   = aws_dynamodb_table.table1.hash_key
 
-  public_access_block_configuration {
-    block_public_acls = true
-    block_public_policy = true
-    ignore_public_acls = true
-  }
-
-  # VPC must be specified for S3 on Outposts
-  vpc_configuration {
-    vpc_id = aws_vpc.example.id
-  }
+  item = <<ITEM
+{
+  "exampleHashKey": {"S": "something"},
+  "one": {"N": "11111"},
+  "two": {"N": "22222"},
+  "three": {"N": "33333"},
+  "four": {"N": "44444"}
 }
-
-resource "aws_elb" "lb" {
-  name               = "test-lb"
-  availability_zones = ["us-east-1a"]
-
-  listener {
-    instance_port     = 8000
-    instance_protocol = "http"
-    lb_port           = 80
-    lb_protocol       = "http"
-  }
+ITEM
 }
